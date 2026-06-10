@@ -1,0 +1,20 @@
+
+body{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap:1cm;
+    flex-grow: 1;
+
+}
+
+/*h2{
+
+    height:10cm;
+    background: radial-gradient(circle, pink,lavender,goldenrod,rgb(216, 200, 200),cyan);
+}
+h3{
+    height:10cm;
+    background: conic-gradient(pink,purple,goldenrod,red,peachpuff);
+}
+    /*

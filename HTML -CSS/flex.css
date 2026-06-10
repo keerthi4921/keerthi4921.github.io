@@ -1,0 +1,17 @@
+nav{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: cyan;
+
+}
+.juices{
+    flex-direction: column;
+    list-style: circle;
+    color: purple;
+}
+ul{
+    display: flex;
+    gap:1cm;
+    list-style: disc;
+}
