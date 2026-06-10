@@ -1,47 +1,354 @@
 <!DOCTYPE html>
-< lang="en">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>A Keerthi | Software Engineer Portfolio</title>
+    <style>
+        :root {
+            color-scheme: dark;
+            --bg: #05121f;
+            --surface: rgba(8, 28, 48, 0.95);
+            --surface-soft: rgba(12, 38, 65, 0.95);
+            --border: rgba(94, 252, 255, 0.2);
+            --aqua: #5efcff;
+            --text: #e9f8ff;
+            --muted: #9cccd7;
+            --accent: #7cffff;
+            --shadow: 0 28px 70px rgba(0, 0, 0, 0.35);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            min-height: 100%;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: radial-gradient(circle at top, rgba(94, 252, 255, 0.16), transparent 25%),
+                        linear-gradient(180deg, #02070f 0%, #05121f 100%);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 28px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 28px;
+            background: var(--surface);
+            border: 1px solid rgba(94, 252, 255, 0.14);
+            border-radius: 36px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(16px);
+        }
+
+        .header {
+            display: grid;
+            gap: 18px;
+            margin-bottom: 32px;
+        }
+
+        .status {
+            width: fit-content;
+            padding: 10px 18px;
+            border-radius: 999px;
+            background: rgba(94, 252, 255, 0.14);
+            border: 1px solid rgba(94, 252, 255, 0.22);
+            color: var(--aqua);
+            font-size: 0.9rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            font-size: clamp(2.8rem, 4vw, 4rem);
+            letter-spacing: -0.03em;
+        }
+
+        h2 {
+            color: var(--accent);
+            font-size: clamp(1.3rem, 2vw, 1.7rem);
+            font-weight: 600;
+        }
+
+        .tagline {
+            max-width: 760px;
+            color: var(--muted);
+            font-size: 1rem;
+        }
+
+        .grid {
+            display: grid;
+            gap: 24px;
+            grid-template-columns: minmax(0, 1fr) 320px;
+        }
+
+        .card {
+            background: var(--surface-soft);
+            border: 1px solid rgba(94, 252, 255, 0.12);
+            border-radius: 28px;
+            padding: 28px;
+        }
+
+        .profile-card {
+            display: grid;
+            gap: 20px;
+        }
+
+        .profile-card h3 {
+            color: var(--accent);
+            margin-bottom: 12px;
+        }
+
+        .details {
+            display: grid;
+            gap: 14px;
+            list-style: none;
+        }
+
+        .details li {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 14px 18px;
+            border-radius: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(94, 252, 255, 0.08);
+        }
+
+        .details li span:first-child {
+            color: var(--muted);
+        }
+
+        .details li span:last-child {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .skills {
+            display: grid;
+            gap: 12px;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .skill-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 18px;
+            border-radius: 999px;
+            background: rgba(94, 252, 255, 0.1);
+            color: var(--text);
+            border: 1px solid rgba(94, 252, 255, 0.14);
+            font-size: 0.95rem;
+        }
+
+        .section {
+            margin-top: 32px;
+        }
+
+        .section h3 {
+            margin-bottom: 18px;
+            color: var(--accent);
+            font-size: 1.4rem;
+        }
+
+        .section p,
+        .section li {
+            color: var(--muted);
+        }
+
+        .list-card {
+            display: grid;
+            gap: 18px;
+        }
+
+        .list-card div {
+            padding: 18px 20px;
+            border-radius: 24px;
+            background: rgba(4, 12, 25, 0.9);
+            border: 1px solid rgba(94, 252, 255, 0.1);
+        }
+
+        .list-card strong {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+            margin-top: 24px;
+        }
+
+        .stat {
+            padding: 24px;
+            border-radius: 26px;
+            background: rgba(4, 12, 25, 0.96);
+            border: 1px solid rgba(94, 252, 255, 0.08);
+            text-align: center;
+        }
+
+        .stat strong {
+            display: block;
+            font-size: 2rem;
+            color: var(--text);
+            margin-bottom: 10px;
+        }
+
+        .stat span {
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
+        .footer {
+            margin-top: 36px;
+            padding: 22px;
+            border-radius: 28px;
+            background: rgba(0, 6, 18, 0.9);
+            border: 1px solid rgba(94, 252, 255, 0.1);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 18px;
+        }
+
+        .footer a {
+            color: var(--aqua);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 14px 24px;
+            border-radius: 999px;
+            border: 1px solid rgba(94, 252, 255, 0.2);
+            background: rgba(94, 252, 255, 0.1);
+            color: var(--aqua);
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            background: rgba(94, 252, 255, 0.18);
+        }
+
+        @media (max-width: 820px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .skills {
+                grid-template-columns: 1fr;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
-<p>
-    <h1>
-    Self-Intro
-    <br>
-</h1>
-<h2>Saradha</h2>
-<br>I am Saradha.I am pursuing<b>btech 3rd year</b>in the field of<big>CSE</big><i></i>
-</br>
-<p><b>Programming languages:</b></p>
-<ol>
-    <li>c</li><li>java</li><li>python</li>
-</ol>
-<table>
-    <tr>
-        <th>5thsemester</th>
-        <th> marks</th>
-        <th> grade</th>
-    </tr>
-    <tr>
-        <td>dbms</td>
-        <td>99</td>
-        <td><b>S</b></td>
-    </tr>
-    <tr>
-        <td>os</td>
-        <td>89</td>
-        <td><b>A</b></td>
-    </tr>
-    <tr>
-        <td>SE</td>
-        <td>79</td>
-        <td><b>B</b></td>
-    </tr>
-</table>
-<a href=form.html></a>
-</p>
-<a href="/form.html"target="main">Form</a>
-    
+<body>
+    <main class="container">
+        <header class="header">
+            <span class="status">Software Engineer</span>
+            <div>
+                <h1>A Keerthi</h1>
+                <h2>B.Tech CSE • Mother Theresa Engineering College</h2>
+                <p class="tagline">Driven software engineer focused on modern web delivery, strong collaboration, and polished user experiences. Ready to build scalable applications with clean, maintainable code.</p>
+            </div>
+        </header>
+
+        <section class="grid">
+            <article class="card profile-card">
+                <div>
+                    <h3>About Me</h3>
+                    <p>I am a dedicated software engineer with a B.Tech in Computer Science and Engineering from Mother Theresa Engineering College. I enjoy designing responsive web interfaces, building reliable backend services, and solving complex technical challenges.</p>
+                </div>
+
+                <ul class="details">
+                    <li><span>Name</span><span>A Keerthi</span></li>
+                    <li><span>Degree</span><span>B.Tech, CSE</span></li>
+                    <li><span>College</span><span>Mother Theresa Engineering College</span></li>
+                    <li><span>Email</span><span><a href="mailto:keerthia729@gmail.com">keerthia729@gmail.com</a></span></li>
+                    <li><span>Profession</span><span>Software Engineer</span></li>
+                </ul>
+            </article>
+
+            <aside class="card">
+                <h3>Skills & Tools</h3>
+                <div class="skills">
+                    <span class="skill-pill">JavaScript</span>
+                    <span class="skill-pill">HTML & CSS</span>
+                    <span class="skill-pill">React</span>
+                    <span class="skill-pill">Node.js</span>
+                    <span class="skill-pill">REST APIs</span>
+                    <span class="skill-pill">Git</span>
+                </div>
+            </aside>
+        </section>
+
+        <section class="section card list-card">
+            <div>
+                <h3>Professional Summary</h3>
+                <p>I build clean, responsive applications with a strong foundation in web standards and user-centered design. I bring practical engineering experience, a collaborative mindset, and a passion for transforming ideas into polished software.</p>
+            </div>
+
+            <div>
+                <h3>Experience Highlights</h3>
+                <p>Worked on frontend and full-stack web projects focused on user experience, performance, and accessibility. Delivered features, optimized workflows, and supported testing and deployment to create reliable applications.</p>
+            </div>
+        </section>
+
+        <section class="section card">
+            <h3>Education</h3>
+            <div class="list-card">
+                <div>
+                    <strong>Mother Theresa Engineering College</strong>
+                    <p>B.Tech, Computer Science and Engineering</p>
+                </div>
+                <div>
+                    <strong>Graduation</strong>
+                    <p>2025</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section card">
+            <div class="stats" id="statsContainer"></div>
+        </section>
+
+        <footer class="footer">
+            <div>Interested in connecting on software engineering or web development opportunities.</div>
+            <a href="mailto:keerthia729@gmail.com" class="button">Contact Me</a>
+        </footer>
+    </main>
+
+    <script>
+        const stats = [
+            { label: 'Completed projects', value: '5+' },
+            { label: 'Responsive design', value: '100%' },
+            { label: 'Focus areas', value: 'Web & App' }
+        ];
+
+        const statsContainer = document.getElementById('statsContainer');
+        if (statsContainer) {
+            statsContainer.innerHTML = stats.map(stat => `\n                <div class="stat">\n                    <strong>${stat.value}</strong>\n                    <span>${stat.label}</span>\n                </div>\n            `).join('');
+        }
+    </script>
 </body>
-</html>
+</html>'''
+with open('index.html','w',encoding='utf-8') as f:
+    f.write(content)
