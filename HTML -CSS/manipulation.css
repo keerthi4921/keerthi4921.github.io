@@ -1,0 +1,22 @@
+img{
+    width: 200px;
+    height: 200px;
+}
+body{
+    background-color:rgb(167, 146, 91) ;
+    border: 2px dashed black;
+    padding: 20px;
+}
+#content{
+    display: flex;
+gap:1cm;
+}
+h1{
+    color:rgb(30, 127, 223);
+    text-align: center;
+}
+p{
+    color:purple;
+    font-size: 20px;
+    text-align: center;
+}
