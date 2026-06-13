@@ -3,34 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forms</title>
-</head>
-<body>
-    <form>
-        <p>
-            Name:<input type="text" placeholder="Keerthi"><br>
-            Age:<input type="number" placeholder="20"><br>
-            Email:<input type="mail" placeholder="1234@gmail.com"><br>
-            Gender:<input type="radio" name="gender" id="1">Male
-            <input type="radio" name="gender" id="2" >Female <br>
-            Qualification:<input type="checkbox" name="qualification" id="1">10<sub>th</sub>
-            <input type="checkbox" name="qualification" id="2">12<sub>th</sub>
-            <input type="checkbox" name="qualification" id="3">degree
-            <input type="checkbox" name="qualification" id="4">Masters<br>
-            password:<input type="password" placeholder="Keerthi123"><br>
-            Date:<input type="date"><br>
-            Time:<input type="datetime-local"><br>
-            Files:<input type="file">
-            <button type="submit">Submit</button>
-            <button type="reset">Clear</button>
+    <title>Responsive form</title>
+    <link rel="stylesheet" href="form.css"> 
+    <head>
+<style>
 
-        </p>
-    </form>
-    <header></header>
-    <div id="1">c</div>
-    <div id="2">python</div>
-    <label for="Name">java</label>
-    <footer>6</footer>
+.container{
+    display: flex;
+    align-items: flex-start;
+    gap: 50px;
+}
+
+.image img{
+    width: 200px;
+    border: 2px solid black;
+}
+
+</style>
+</head>
     
+</head>
+<div>
+  <h1>Driving License</h1>
+  <form id="details">
+    <label >Name:</label>
+    <input type="text" id="name" required>
+    <br><br>
+    <label>email:</label>
+    <input type="email" id="email"required><br><br>
+    <label>Phone number:</label>
+    <input type="number"id="Phone"required><br><br>
+    <label>D.O.B:</label>
+    <input type="data" id="dob">
+    <label>age:</label>
+    <input type="number"id="age"required><br><br>
+    <label>gender:</label>
+    <input type="radio" name="gender" id="male"value="male" required>male
+    <input type="radio" name="gender" id="female"value="female" >female
+    <input type="radio" name="gender" id="not to mention"value="not to mention" >not to mention
+    <br>
+    <label>Verified</label>
+    <input type="checkbox"name="documents"value="RC">RC
+    <input type="checkbox"name="documents"value="Insurance">Insurance
+    <input type="checkbox"name="documents"value="Pollution Control">Pollution Control
+    <br>
+
+    <label>address:</label>
+    <input type="text"id="address"required><br><br>
+        <label>photo:</label>
+    <input type="file"id="image" accept="image/* required"><br><br>
+    <button type="submit">Submit</button>
+    
+  </form>  
+  <div class="container">
+  <div class="text">
+  <h2>License Details </h2>
+  <p id="p1"></p>
+  <p id="p2"></p>
+  <p id="p3"></p>
+  <p id="p4"></p>
+  <p id="p5"></p>
+  <p id="p6"></p>
+  <p id="p7"></p>
+  
+  </div>
+  <div class="image">
+  <img id="dp" width="200px">
+</div>
+</div>
+  <script src="form.js"></script>
 </body>
 </html>
