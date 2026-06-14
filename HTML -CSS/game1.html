@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Picture Puzzle Master</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #f8fafc;
+      background: #0f172a;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: radial-gradient(circle at top, #334155 0%, #0f172a 50%, #020617 100%);
+    }
+
+    .page {
+      width: min(980px, 100%);
+      display: grid;
+      gap: 24px;
+    }
+
+    header {
+      text-align: center;
+      padding: 12px 0;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 4vw, 3rem);
+      letter-spacing: 0.08em;
+      line-height: 1.05;
+    }
+
+    p.lead {
+      max-width: 700px;
+      margin: 14px auto 0;
+      color: #cbd5e1;
+      line-height: 1.7;
+    }
+
+    .game-board {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .puzzle-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      padding: 16px;
+      border-radius: 28px;
+      background: rgba(15, 23, 42, 0.86);
+      border: 1px solid rgba(148, 163, 184, 0.16);
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.35);
+    }
+
+    .slot {
+      position: relative;
+      aspect-ratio: 1 / 1;
+      min-height: 180px;
+      display: grid;
+      place-items: center;
+      border-radius: 20px;
+      background: rgba(148, 163, 184, 0.08);
+      border: 2px dashed rgba(148, 163, 184, 0.26);
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .slot.over {
+      border-color: #7dd3fc;
+      transform: translateY(-2px);
+    }
+
+    .piece {
+      width: 100%;
+      height: 100%;
+      border-radius: 20px;
+      background-repeat: no-repeat;
+      background-size: 540px 540px;
+      cursor: grab;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.35);
+      border: 2px solid transparent;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .piece.dragging {
+      opacity: 0.45;
+      transform: scale(1.03);
+    }
+
+    .piece.correct {
+      border-color: #34d399;
+    }
+
+    .sidebar {
+      display: grid;
+      gap: 16px;
+    }
+
+    .card {
+      padding: 20px;
+      border-radius: 24px;
+      background: rgba(15, 23, 42, 0.92);
+      border: 1px solid rgba(148, 163, 184, 0.16);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+    }
+
+    .card h2 {
+      margin: 0 0 14px;
+      font-size: 1.05rem;
+      letter-spacing: 0.04em;
+      color: #e2e8f0;
+    }
+
+    .card p {
+      margin: 0;
+      color: #cbd5e1;
+      line-height: 1.65;
+    }
+
+    .preview-image {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: 22px;
+      background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1NDAgNTQwIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0ic2t5IiB4MT0iMCIgeDI9IjAiIHkxPSIwIiB5Mj0iMSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM3ZWQ2ZmYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjM2I1OWE3Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJzdW4iIHgxPSIwIiB4Mj0iMSIgeTE9IjAiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZmZTA2NiIvPgogICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjZmY4YzQyIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iNTQwIiBoZWlnaHQ9IjU0MCIgZmlsbD0idXJsKCNza3kpIi8+CiAgPGNpcmNsZSBjeD0iMTQwIiBjeT0iMTQwIiByPSI4MCIgZmlsbD0idXJsKCNzdW4pIi8+CiAgPHBhdGggZD0iTTAgMzYwIFEyMDAgMjYwIDM2MCAzNjAgVDU0MCAzNjAgTDU0MCA1NDAgTDAgNTQwIFoiIGZpbGw9IiM2OGRlMzkxIi8+CiAgPHBhdGggZD0iTTE4MCAzNjAgUTI0MCAzMDAgMzAwIDM2MCBUNDIwIDM2MCBMMjgwIDU0MCBMMTgwIDU0MCBaIiBmaWxsPSIjNGM5ZjcwIi8+CiAgPHBhdGggZD0iTTExMCA0MjAgQzkwIDM0MCAxNzAgMzIwIDE5MCA0MTAgTDE5MCA1NDAgTDExMCA1NDAgWiIgZmlsbD0iIzE0NWQzMiIvPgogIDxwYXRoIGQ9Ik0zMjAgNDMwIEMzNDAgMzMwIDQyMCAzNDAgMzkxIDQ1MCBMMzkxIDU0MCBMMzIwIDU0MCBaIiBmaWxsPSIjMWY0ZTI5Ii8+CiAgPHBhdGggZD0iTTIxNSAyOTAgQzE5NSAyMTAgMjU1IDE3MCAyNzAgMjYwIEwyNzAgNTQwIEwyMTUgNTQwIFoiIGZpbGw9IiMyZDdhMzMiLz4KICA8cGF0aCBkPSJNNjAgMjAwIEM1MCAxNDAgMTEwIDEyMCAxMzAgMTgwIEwxMzAgMjQwIEw2MCAyNDAgWiIgZmlsbD0iI2Y4YjUwMCIgT3BhY2l0eT0iMC42NSIvPgogIDxwYXRoIGQ9Ik00MjAgMjQwIEM0MDAgMTgwIDQ3MCAxNjAgNDkwIDIyMCBMMTkyODAgMjgwIEw0MjAgMjgwIFoiIGZpbGw9IiNmZmRlN2EiIE9wYWNpdHk9IjAuNTUiLz4KICA8Y2lyY2xlIGN4PSI0MzAiIGN5PSIxMzAiIHI9IjIwIiBmaWxsPSIjZmZmZmZmIiBvcGFjaXR5PSIwLjM1Ii8+Cjwvc3ZnPg==');
+      background-size: cover;
+      background-position: center;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+    }
+
+    .stats {
+      display: grid;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .stats span {
+      display: inline-flex;
+      justify-content: space-between;
+      width: 100%;
+      color: #cbd5e1;
+    }
+
+    .actions {
+      display: grid;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    button {
+      width: 100%;
+      border: none;
+      border-radius: 999px;
+      padding: 14px 18px;
+      color: #0f172a;
+      font-weight: 700;
+      background: linear-gradient(135deg, #38bdf8, #22d3ee);
+      cursor: pointer;
+      transition: transform 0.2s ease, filter 0.2s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.05);
+    }
+
+    .message-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 20px;
+      border-radius: 24px;
+      background: rgba(52, 211, 153, 0.12);
+      border: 1px solid rgba(52, 211, 153, 0.25);
+      color: #d1fae5;
+      font-weight: 600;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 880px) {
+      .game-board {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>Picture Puzzle Master</h1>
+      <p class="lead">Assemble the image by dragging each piece into the correct slot. Finish the puzzle to reveal the complete picture.</p>
+    </header>
+
+    <section class="game-board">
+      <div class="puzzle-grid" id="puzzleGrid"></div>
+      <aside class="sidebar">
+        <section class="card">
+          <h2>Reference Picture</h2>
+          <div class="preview-image"></div>
+        </section>
+
+        <section class="card stats">
+          <span>Moves <strong id="moveCount">0</strong></span>
+          <span>Progress <strong id="progress">0%</strong></span>
+        </section>
+
+        <section class="card actions">
+          <button id="shuffleBtn">Shuffle Pieces</button>
+          <button id="resetBtn">Reset Puzzle</button>
+        </section>
+      </aside>
+    </section>
+
+    <div id="completionMessage" class="message-box hidden">🎉 Picture complete! Well done.</div>
+  </div>
+
+  <script>
+    const rows = 3;
+    const cols = 3;
+    const pieceCount = rows * cols;
+    const moveCount = document.getElementById('moveCount');
+    const progress = document.getElementById('progress');
+    const completionMessage = document.getElementById('completionMessage');
+    const shuffleBtn = document.getElementById('shuffleBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const puzzleGrid = document.getElementById('puzzleGrid');
+
+    const imageUrl = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1NDAgNTQwIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0ic2t5IiB4MT0iMCIgeDI9IjAiIHkxPSIwIiB5Mj0iMSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM3ZWQ2ZmYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjM2I1OWE3Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJzdW4iIHgxPSIwIiB4Mj0iMSIgeTE9IjAiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZmZTA2NiIvPgogICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjZmY4YzQyIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iNTQwIiBoZWlnaHQ9IjU0MCIgZmlsbD0idXJsKCNza3kpIi8+CiAgPGNpcmNsZSBjeD0iMTQwIiBjeT0iMTQwIiByPSI4MCIgZmlsbD0idXJsKCNzdW4pIi8+CiAgPHBhdGggZD0iTTAgMzYwIFEyMDAgMjYwIDM2MCAzNjAgVDU0MCAzNjAgTDU0MCA1NDAgTDAgNTQwIFoiIGZpbGw9IiM2OGRlMzkxIi8+CiAgPHBhdGggZD0iTTE4MCAzNjAgUTI0MCAzMDAgMzAwIDM2MCBUNDIwIDM2MCBMMjgwIDU0MCBMMTgwIDU0MCBaIiBmaWxsPSIjNGM5ZjcwIi8+CiAgPHBhdGggZD0iTTExMCA0MjAgQzkwIDM0MCAxNzAgMzIwIDE5MCA0MTAgTDE5MCA1NDAgTDExMCA1NDAgWiIgZmlsbD0iIzE0NWQzMiIvPgogIDxwYXRoIGQ9Ik0zMjAgNDMwIEMzNDAgMzMwIDQyMCAzNDAgMzkxIDQ1MCBMMzkxIDU0MCBMMzIwIDU0MCBaIiBmaWxsPSIjMWY0ZTI5Ii8+CiAgPHBhdGggZD0iTTIxNSAyOTAgQzE5NSAyMTAgMjU1IDE3MCAyNzAgMjYwIEwyNzAgNTQwIEwyMTUgNTQwIFoiIGZpbGw9IiMyZDdhMzMiLz4KICA8cGF0aCBkPSJNNjAgMjAwIEM1MCAxNDAgMTEwIDEyMCAxMzAgMTgwIEwxMzAgMjQwIEw2MCAyNDAgWiIgZmlsbD0iI2Y4YjUwMCIgT3BhY2l0eT0iMC42NSIvPgogIDxwYXRoIGQ9Ik00MjAgMjQwIEM0MDAgMTgwIDQ3MCAxNjAgNDkwIDIyMCBMMTkyODAgMjgwIEw0MjAgMjgwIFoiIGZpbGw9IiNmZmRlN2EiIE9wYWNpdHk9IjAuNTUiLz4KICA8Y2lyY2xlIGN4PSI0MzAiIGN5PSIxMzAiIHI9IjIwIiBmaWxsPSIjZmZmZmZmIiBvcGFjaXR5PSIwLjM1Ii8+Cjwvc3ZnPg==';
+    let currentMoves = 0;
+    let selectedPiece = null;
+
+    function createSlots() {
+      puzzleGrid.innerHTML = '';
+      for (let index = 0; index < pieceCount; index += 1) {
+        const slot = document.createElement('div');
+        slot.className = 'slot';
+        slot.dataset.index = index;
+        slot.addEventListener('dragover', handleDragOver);
+        slot.addEventListener('drop', handleDrop);
+        slot.addEventListener('dragleave', () => slot.classList.remove('over'));
+        puzzleGrid.appendChild(slot);
+      }
+    }
+
+    function createPiece(index) {
+      const piece = document.createElement('div');
+      piece.className = 'piece';
+      piece.draggable = true;
+      piece.dataset.index = index;
+      const x = -(index % cols) * 180;
+      const y = -Math.floor(index / cols) * 180;
+      piece.style.backgroundImage = `url('${imageUrl}')`;
+      piece.style.backgroundPosition = `${x}px ${y}px`;
+      piece.style.backgroundSize = '540px 540px';
+      piece.addEventListener('dragstart', handleDragStart);
+      piece.addEventListener('dragend', handleDragEnd);
+      piece.addEventListener('click', handlePieceClick);
+      return piece;
+    }
+
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function fillPuzzle(pieces) {
+      const slots = [...puzzleGrid.children];
+      slots.forEach((slot, slotIndex) => {
+        slot.innerHTML = '';
+        const pieceIndex = pieces[slotIndex];
+        const piece = createPiece(pieceIndex);
+        slot.appendChild(piece);
+      });
+      markCorrectPieces();
+    }
+
+    function updateProgress() {
+      const slots = [...puzzleGrid.children];
+      const correctCount = slots.filter((slot, slotIndex) => {
+        const piece = slot.firstElementChild;
+        return piece && Number(piece.dataset.index) === Number(slot.dataset.index);
+      }).length;
+      const percent = Math.round((correctCount / pieceCount) * 100);
+      progress.textContent = `${percent}%`;
+      completionMessage.classList.toggle('hidden', percent !== 100);
+      if (percent === 100) {
+        completionMessage.textContent = '🎉 Picture complete! Well done.';
+      }
+    }
+
+    function markCorrectPieces() {
+      puzzleGrid.querySelectorAll('.piece').forEach(piece => {
+        const slot = piece.parentElement;
+        piece.classList.toggle('correct', piece.dataset.index === slot.dataset.index);
+      });
+      updateProgress();
+    }
+
+    function handleDragStart(event) {
+      selectedPiece = event.target;
+      event.dataTransfer.setData('text/plain', selectedPiece.dataset.index);
+      window.setTimeout(() => selectedPiece.classList.add('dragging'), 0);
+    }
+
+    function handleDragEnd() {
+      if (selectedPiece) selectedPiece.classList.remove('dragging');
+      selectedPiece = null;
+      document.querySelectorAll('.slot.over').forEach(slot => slot.classList.remove('over'));
+    }
+
+    function handleDragOver(event) {
+      event.preventDefault();
+      const slot = event.currentTarget;
+      slot.classList.add('over');
+    }
+
+    function handleDrop(event) {
+      event.preventDefault();
+      const targetSlot = event.currentTarget;
+      targetSlot.classList.remove('over');
+      const sourceIndex = event.dataTransfer.getData('text/plain');
+      const sourcePiece = selectedPiece || document.querySelector(`.piece[data-index="${sourceIndex}"]`);
+      if (!sourcePiece) return;
+      const sourceSlot = sourcePiece.parentElement;
+      if (sourceSlot === targetSlot) return;
+      const targetPiece = targetSlot.firstElementChild;
+      targetSlot.innerHTML = '';
+      targetSlot.appendChild(sourcePiece);
+      if (targetPiece) sourceSlot.appendChild(targetPiece);
+      currentMoves += 1;
+      moveCount.textContent = currentMoves;
+      markCorrectPieces();
+    }
+
+    function handlePieceClick(event) {
+      const clickedPiece = event.currentTarget;
+      if (!selectedPiece) {
+        selectedPiece = clickedPiece;
+        clickedPiece.classList.add('dragging');
+        return;
+      }
+      const firstSlot = selectedPiece.parentElement;
+      const secondSlot = clickedPiece.parentElement;
+      if (firstSlot === secondSlot) {
+        selectedPiece.classList.remove('dragging');
+        selectedPiece = null;
+        return;
+      }
+      secondSlot.removeChild(clickedPiece);
+      firstSlot.removeChild(selectedPiece);
+      firstSlot.appendChild(clickedPiece);
+      secondSlot.appendChild(selectedPiece);
+      selectedPiece.classList.remove('dragging');
+      selectedPiece = null;
+      currentMoves += 1;
+      moveCount.textContent = currentMoves;
+      markCorrectPieces();
+    }
+
+    function shufflePieces() {
+      currentMoves = 0;
+      moveCount.textContent = currentMoves;
+      const indices = Array.from({ length: pieceCount }, (_, index) => index);
+      let shuffled = shuffleArray([...indices]);
+      while (shuffled.every((value, index) => value === index)) {
+        shuffled = shuffleArray([...indices]);
+      }
+      fillPuzzle(shuffled);
+    }
+
+    function resetPuzzle() {
+      currentMoves = 0;
+      moveCount.textContent = currentMoves;
+      fillPuzzle(Array.from({ length: pieceCount }, (_, index) => index));
+    }
+
+    shuffleBtn.addEventListener('click', shufflePieces);
+    resetBtn.addEventListener('click', resetPuzzle);
+
+    createSlots();
+    shufflePieces();
+  </script>
+</body>
+</html>

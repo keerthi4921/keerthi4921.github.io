@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sky Hopper</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(180deg, #70c4ff 0%, #0b2d5f 100%);
+      color: #fff;
+    }
+
+    .game-container {
+      width: min(520px, 100%);
+      padding: 20px;
+      border-radius: 22px;
+      background: rgba(10, 18, 40, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+    }
+
+    h1 {
+      font-size: 2rem;
+      text-align: center;
+      margin-bottom: 12px;
+      letter-spacing: 2px;
+    }
+
+    .hud {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+      text-transform: uppercase;
+      font-size: 0.95rem;
+      letter-spacing: 1px;
+    }
+
+    .hud div {
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.08);
+      text-align: center;
+    }
+
+    canvas {
+      width: 100%;
+      height: auto;
+      border-radius: 18px;
+      background: linear-gradient(180deg, #80d3ff 0%, #1f3f78 100%);
+      display: block;
+      box-shadow: inset 0 0 30px rgba(255, 255, 255, 0.08);
+    }
+
+    .controls {
+      margin-top: 16px;
+      text-align: center;
+      font-size: 0.95rem;
+      color: rgba(255, 255, 255, 0.82);
+      line-height: 1.6;
+    }
+
+    .controls span {
+      display: inline-block;
+      margin: 0 8px;
+      padding: 8px 12px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    button {
+      padding: 12px 18px;
+      border: none;
+      border-radius: 999px;
+      background: #54b0ff;
+      color: white;
+      cursor: pointer;
+      font-weight: 600;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      background: #3d8de9;
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <h1>Sky Hopper</h1>
+    <div class="hud">
+      <div>Score: <span id="score">0</span></div>
+      <div>Jumps: <span id="jumps">0</span></div>
+    </div>
+    <canvas id="gameCanvas" width="520" height="620"></canvas>
+    <div class="buttons">
+      <button id="restartBtn">Restart</button>
+      <button id="pauseBtn">Pause</button>
+    </div>
+    <div class="controls">
+      <span>Left / Right to move</span>
+      <span>Up or Space to jump</span>
+      <span>Survive as long as possible</span>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const scoreLabel = document.getElementById('score');
+    const jumpsLabel = document.getElementById('jumps');
+    const restartBtn = document.getElementById('restartBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+
+    const gameWidth = canvas.width;
+    const gameHeight = canvas.height;
+
+    const player = {
+      x: 240,
+      y: 520,
+      width: 40,
+      height: 50,
+      vx: 0,
+      vy: 0,
+      speed: 4,
+      gravity: 0.36,
+      jumpStrength: -10.8,
+      onGround: false,
+      color: '#ffe065'
+    };
+
+    let platforms = [];
+    let score = 0;
+    let jumps = 0;
+    let paused = false;
+    let gameOver = false;
+    let lastFrame = 0;
+    let keys = { left: false, right: false, up: false };
+
+    function createPlatform(x, y, width) {
+      return { x, y, width, height: 16, color: '#5ad6ff' };
+    }
+
+    function initPlatforms() {
+      platforms = [
+        createPlatform(180, 580, 160),
+        createPlatform(80, 460, 140),
+        createPlatform(320, 380, 140),
+        createPlatform(130, 280, 160),
+        createPlatform(280, 180, 120),
+        createPlatform(50, 90, 140)
+      ];
+    }
+
+    function resetGame() {
+      score = 0;
+      jumps = 0;
+      gameOver = false;
+      paused = false;
+      player.x = 240;
+      player.y = 520;
+      player.vx = 0;
+      player.vy = 0;
+      player.onGround = false;
+      initPlatforms();
+      scoreLabel.textContent = score;
+      jumpsLabel.textContent = jumps;
+      pauseBtn.textContent = 'Pause';
+      lastFrame = 0;
+      window.requestAnimationFrame(gameLoop);
+    }
+
+    function update(delta) {
+      if (gameOver || paused) return;
+
+      if (keys.left) player.vx = -player.speed;
+      else if (keys.right) player.vx = player.speed;
+      else player.vx = 0;
+
+      player.x += player.vx;
+      player.x = Math.max(10, Math.min(gameWidth - player.width - 10, player.x));
+
+      player.vy += player.gravity;
+      player.y += player.vy;
+
+      player.onGround = false;
+      platforms.forEach(platform => {
+        if (
+          player.vy >= 0 &&
+          player.x + player.width > platform.x + 4 &&
+          player.x < platform.x + platform.width - 4 &&
+          player.y + player.height > platform.y &&
+          player.y + player.height < platform.y + platform.height + Math.abs(player.vy)
+        ) {
+          player.y = platform.y - player.height;
+          player.vy = 0;
+          player.onGround = true;
+        }
+      });
+
+      if (player.y > gameHeight) {
+        gameOver = true;
+      }
+
+      if (player.y < 220) {
+        const dy = 220 - player.y;
+        player.y = 220;
+        platforms.forEach(platform => {
+          platform.y += dy;
+        });
+        score += Math.floor(dy * 0.6);
+      }
+
+      platforms = platforms.filter(platform => platform.y < gameHeight + 20);
+      while (platforms.length < 6) {
+        const lastY = Math.min(...platforms.map(p => p.y));
+        const nextY = lastY - (90 + Math.random() * 90);
+        const nextWidth = 110 + Math.random() * 80;
+        platforms.push(createPlatform(Math.random() * (gameWidth - nextWidth - 20) + 10, nextY, nextWidth));
+      }
+
+      scoreLabel.textContent = score;
+      jumpsLabel.textContent = jumps;
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, gameWidth, gameHeight);
+
+      const gradient = ctx.createLinearGradient(0, 0, 0, gameHeight);
+      gradient.addColorStop(0, '#a6ecff');
+      gradient.addColorStop(1, '#1f3f78');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, gameWidth, gameHeight);
+
+      platforms.forEach(platform => {
+        ctx.fillStyle = platform.color;
+        ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+      });
+
+      ctx.fillStyle = player.color;
+      ctx.beginPath();
+      ctx.roundRect(player.x, player.y, player.width, player.height, 10);
+      ctx.fill();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '20px Arial';
+      ctx.textAlign = 'center';
+      if (paused || gameOver) {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+        ctx.fillRect(0, 0, gameWidth, gameHeight);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 34px Arial';
+        ctx.fillText(gameOver ? 'Game Over' : 'Paused', gameWidth / 2, gameHeight / 2 - 12);
+        ctx.font = '18px Arial';
+        ctx.fillText(gameOver ? 'Press Restart to try again' : 'Press Pause again to resume', gameWidth / 2, gameHeight / 2 + 24);
+      }
+    }
+
+    function gameLoop(timestamp) {
+      if (!lastFrame) lastFrame = timestamp;
+      const delta = timestamp - lastFrame;
+      lastFrame = timestamp;
+      update(delta);
+      draw();
+      if (!gameOver) window.requestAnimationFrame(gameLoop);
+    }
+
+    function jump() {
+      if (player.onGround && !paused && !gameOver) {
+        player.vy = player.jumpStrength;
+        player.onGround = false;
+        jumps += 1;
+        jumpsLabel.textContent = jumps;
+      }
+    }
+
+    window.addEventListener('keydown', event => {
+      if (event.key === 'ArrowLeft' || event.key.toLowerCase() === 'a') keys.left = true;
+      if (event.key === 'ArrowRight' || event.key.toLowerCase() === 'd') keys.right = true;
+      if (event.key === 'ArrowUp' || event.key === ' ' || event.key.toLowerCase() === 'w') jump();
+      if (event.key.toLowerCase() === 'p') togglePause();
+      if (event.key.toLowerCase() === 'r') resetGame();
+    });
+
+    window.addEventListener('keyup', event => {
+      if (event.key === 'ArrowLeft' || event.key.toLowerCase() === 'a') keys.left = false;
+      if (event.key === 'ArrowRight' || event.key.toLowerCase() === 'd') keys.right = false;
+    });
+
+    restartBtn.addEventListener('click', resetGame);
+    pauseBtn.addEventListener('click', togglePause);
+
+    function togglePause() {
+      if (gameOver) return;
+      paused = !paused;
+      pauseBtn.textContent = paused ? 'Resume' : 'Pause';
+      if (!paused) {
+        lastFrame = 0;
+        window.requestAnimationFrame(gameLoop);
+      }
+    }
+
+    resetGame();
+  </script>
+</body>
+</html>
